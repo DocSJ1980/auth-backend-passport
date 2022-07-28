@@ -10,7 +10,6 @@ exports.register = async (req, res, next) => {
             success: true,
             user: user,
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -19,8 +18,49 @@ exports.register = async (req, res, next) => {
     }
 };
 
-exports.login = (req, res, next) => {
-    res.send('Register Route');
+exports.login = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        res
+            .status(400)
+            .json({
+                success: "false",
+                error: "Please enter email and password"
+            })
+    };
+
+    try {
+        const user = await User.findOne({ email }).select("+password");
+
+        if (!user) {
+            res
+                .status(404)
+                .json({
+                    success: false,
+                    error: "Please enter valid credentials"
+                })
+        };
+
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+            res
+                .status(404)
+                .json({
+                    success: false,
+                    error: "Please enter valid credentials PW"
+                })
+        };
+
+        res.status(201).json({
+            success: true,
+            token: "h;sjdfa;jdkasdjfak",
+        });
+
+    } catch (error) {
+
+    }
 };
 
 exports.forgotPassword = (req, res, next) => {
