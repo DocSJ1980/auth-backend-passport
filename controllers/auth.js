@@ -58,6 +58,17 @@ exports.login = async (req, res, next) => {
     }
 };
 
+exports.protected = (req, res, next) => {
+    res.status(200).json({
+        success: true,
+        message: "Token Verified Successfully",
+        user: {
+            id: req.user._id,
+            username: req.user.username
+        }
+    });
+}
+
 exports.forgotPassword = (req, res, next) => {
     res.send('Forgot Password Route');
 }

@@ -2,6 +2,7 @@ require('dotenv').config({ path: './config/config.env' });
 const express = require('express');
 const connectDatabase = require("./config/db.js");
 const errorHandler = require('./middleware/error.js');
+const passport = require('passport');
 
 //Database Connection
 connectDatabase();
@@ -17,6 +18,8 @@ app.get("/", (req, res, next) => {
 
 //Use express server for other routes in routers
 app.use("/api/auth", require("./routers/auth.js"));
+
+app.use(passport.initialize());
 
 //Error Handler (Should be last piece of middleware)
 app.use(errorHandler);
