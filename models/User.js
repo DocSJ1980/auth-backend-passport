@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require("mongoose");
 // import jwt from "jsonwebtoken";
 const bcrypt = require("bcrypt");
@@ -51,7 +52,7 @@ const userSchema = new mongoose.Schema({
 
     // otp: Number,
     // otp_expiry: Date,
-    resetPasswordOtp: Number,
+    resetPasswordOtp: String,
     resetPasswordOtpExpiry: Date,
 });
 
@@ -73,6 +74,15 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
+
+userSchema.methods.getResetPasswordToken = function () {
+    const randomToken = crypto.randomBytes(20).toString("hex")
+    this.resetPasswordOtp = crypto
+        .createHash("sha256")
+        .update(randomToken)
+        .digest("hex")
+    this.resetPasswordOtpExpiry = Date.now() + 10 * (60 * 1000)
+}
 
 // userSchema.index({ otp_expiry: 1 }, { expireAfterSeconds: 0 });
 

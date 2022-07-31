@@ -9,18 +9,18 @@ module.exports = function (passport) {
             secretOrKey: process.env.JWT_SECRET,
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
         },
-            function (jwt_payload, done) {
+            function (jwt_payload, next) {
                 // console.log(jwt_payload);
                 User.findOne({ _id: jwt_payload.id }, function (err, user) {
                     if (err) {
-                        return done(err, false)
+                        return next(err, false)
                     }
 
                     if (user) {
-                        return done(null, user)
+                        return next(null, user)
                     }
                     else {
-                        return done(null, false)
+                        return next(null, false)
                     }
                 })
             }

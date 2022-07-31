@@ -1,6 +1,7 @@
 const User = require("../models/User.js");
 const ErrorResponse = require("../utils/errorResponse.js")
 const jwt = require('jsonwebtoken');
+const sendEmail = require("../utils/sendEmail.js");
 
 exports.register = async (req, res, next) => {
     const { username, email, password } = req.body;
@@ -59,18 +60,56 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protected = (req, res, next) => {
-    res.status(200).json({
-        success: true,
-        message: "Token Verified Successfully",
-        user: {
-            id: req.user._id,
-            username: req.user.username
-        }
-    });
+    try {
+        res.status(200).json({
+            success: true,
+            message: "Token Verified Successfully",
+            user: {
+                id: req.user._id,
+                username: req.user.username
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
-exports.forgotPassword = (req, res, next) => {
-    res.send('Forgot Password Route');
+exports.forgotPassword = async (req, res, next) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return next(new ErrorResponse("Email could not be found", 404))
+        }
+
+        await user.getResetPasswordToken()
+        await user.save()
+        const resetToken = user.resetPasswordOtp
+
+        const resetUrl = `http://auth.sjnotes.tk:3000/passwordreset/${resetToken}`
+        const message = `<h1>You have requested a password reset</h1>
+        <p>Please go to this link to reset your password</p>
+        <a href=${resetUrl}>Reset Password</a>`
+        try {
+            await sendEmail(
+                user.email,
+                "Password Reset Requeest",
+                message
+            )
+            res.status(200).json({
+                success: true,
+                data: "Email sent"
+            })
+        } catch (error) {
+            user.resetPasswordOtp = undefined;
+            user.resetPasswordOtpExpiry = undefined;
+            await user.save();
+            return next(new ErrorResponse("Email Could not be sent", 400))
+        }
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.resetPassword = (req, res, next) => {
