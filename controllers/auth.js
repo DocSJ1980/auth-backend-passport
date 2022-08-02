@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const User = require("../models/User.js");
 const ErrorResponse = require("../utils/errorResponse.js")
 const jwt = require('jsonwebtoken');
@@ -112,6 +113,29 @@ exports.forgotPassword = async (req, res, next) => {
     }
 }
 
-exports.resetPassword = (req, res, next) => {
-    res.send('Reset Password Route');
+exports.resetPassword = async (req, res, next) => {
+    const resetPasswordOtpFromEmail = req.params.resetToken
+    try {
+        const user = await User.findOne({
+            resetPasswordOtp: resetPasswordOtpFromEmail,
+            resetPasswordOtpExpiry: { $gt: Date.now() }
+        })
+        if (!user) {
+            return next(new ErrorResponse("Invalid Reset Token", 400))
+        }
+
+        user.password = req.body.password
+        user.resetPasswordOtp = undefined
+        user.resetPasswordOtpExpiry = undefined
+
+        await user.save()
+
+        res.status(201).json({
+            success: true,
+            data: "Password Reset Success"
+        })
+
+    } catch (error) {
+        next(error);
+    }
 };

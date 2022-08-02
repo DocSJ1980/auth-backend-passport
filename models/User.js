@@ -81,7 +81,7 @@ userSchema.methods.getResetPasswordToken = function () {
         .createHash("sha256")
         .update(randomToken)
         .digest("hex")
-    this.resetPasswordOtpExpiry = Date.now() + 10 * (60 * 1000)
+    this.resetPasswordOtpExpiry = Date.now() + 6000 * (60 * 1000)
 }
 
 // userSchema.index({ otp_expiry: 1 }, { expireAfterSeconds: 0 });
