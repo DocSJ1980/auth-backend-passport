@@ -5,6 +5,7 @@ require('../utils/passports.js')(passport);
 
 const {
     register,
+    verify,
     login,
     protected,
     forgotPassword,
@@ -12,6 +13,7 @@ const {
 } = require('../controllers/auth.js');
 
 router.route("/register").post(register);
+router.get("/verify/:e/:rt", verify);
 router.route("/login").post(login);
 router.get("/protected", passport.authenticate('jwt', { session: false }), protected);
 router.route("/forgotpassword").post(forgotPassword);

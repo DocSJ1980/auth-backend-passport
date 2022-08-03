@@ -3,6 +3,7 @@ const express = require('express');
 const connectDatabase = require("./config/db.js");
 const errorHandler = require('./middleware/error.js');
 const passport = require('passport');
+const bodyParser = require('body-parser');
 
 //Database Connection
 connectDatabase();
@@ -11,13 +12,17 @@ connectDatabase();
 const app = express();
 
 //Use express server for home route
+app.use(bodyParser());
 app.use(express.json());
-app.get("/", (req, res, next) => {
-    res.send("Api running");
-});
+app.use(express.urlencoded({ extended: true }));
+
 
 //Use express server for other routes in routers
 app.use("/api/auth", require("./routers/auth.js"));
+
+app.get("/", (req, res, next) => {
+    res.send("Api running");
+});
 
 app.use(passport.initialize());
 

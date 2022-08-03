@@ -26,10 +26,10 @@ const userSchema = new mongoose.Schema({
         select: false,
     },
 
-    // avatar: {
-    //     public_id: String,
-    //     url: String,
-    // },
+    avatar: {
+        public_id: String,
+        url: String,
+    },
 
     createdAt: {
         type: Date,
@@ -45,13 +45,13 @@ const userSchema = new mongoose.Schema({
     //     },
     // ],
 
-    // verified: {
-    //     type: Boolean,
-    //     default: false,
-    // },
+    verified: {
+        type: Boolean,
+        default: false,
+    },
 
-    // otp: Number,
-    // otp_expiry: Date,
+    otp: String,
+    otp_expiry: Date,
     resetPasswordOtp: String,
     resetPasswordOtpExpiry: Date,
 });
